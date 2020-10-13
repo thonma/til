@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Optimize Font Color</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/spectre.css/dist/spectre.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css"
+    />
+    <style>
+      main {
+        text-align: center;
+      }
+      input[type='text'] {
+        width: 100%;
+        font-size: 2rem;
+        text-align: center;
+        border: none;
+        outline: none;
+      }
+      .slider {
+        width: 80%;
+        margin: 2rem auto;
+      }
+      #R::-webkit-slider-thumb {
+        background: #f33;
+      }
+      #G::-webkit-slider-thumb {
+        background: #3f3;
+      }
+      #B::-webkit-slider-thumb {
+        background: #33f;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <input type="text" value="QWERTY" id="Field" />
+      <input type="text" id="RgbField" readonly />
+      <input type="text" id="HexField" readonly />
+      <input type="text" id="HslField" readonly />
+
+      <input class="slider" type="range" min="0" max="255" value="127" id="R" />
+      <input class="slider" type="range" min="0" max="255" value="127" id="G" />
+      <input class="slider" type="range" min="0" max="255" value="127" id="B" />
+
+      <button class="btn" id="RandomBtn">Random</button>
+    </main>
+
+    <script>
+      (() => {
+        'use strict';
+
+        // refs: https://katashin.info/2018/12/18/247
+        const chooseTextColor = (red, green, blue) => {
+          // sRGB を RGB に変換し、背景色の相対輝度を求める
+          const toRgbItem = item => {
+            const i = item / 255;
+            return i <= 0.03928
+              ? i / 12.92
+              : Math.pow((i + 0.055) / 1.055, 2.4);
+          };
+          const R = toRgbItem(red);
+          const G = toRgbItem(green);
+          const B = toRgbItem(blue);
+          const Lbg = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+
+          // 白と黒の相対輝度。定義からそれぞれ 1 と 0 になる
+          const Lw = 1;
+          const Lb = 0;
+
+          // 白と背景色のコントラスト比、黒と背景色のコントラスト比をそれぞれ求める
+          const Cw = (Lw + 0.05) / (Lbg + 0.05);
+          const Cb = (Lbg + 0.05) / (Lb + 0.05);
+
+          // コントラスト比が大きい方を文字色として返す
+          return Cw < Cb ? '#000' : '#fff';
+        };
+
+        const toRgb = (r, g, b) => {
+          return `rgb(${r}, ${g}, ${b})`;
+        };
+
+        const toHex = (r, g, b) => {
+          return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
+        };
+
+        const toHsl = (r, g, b) => {
+          (r /= 255), (g /= 255), (b /= 255);
+
+          var max = Math.max(r, g, b),
+            min = Math.min(r, g, b);
+          var h,
+            s,
+            l = (max + min) / 2;
+
+          if (max == min) {
+            h = s = 0; // achromatic
+          } else {
+            var d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+            switch (max) {
+              case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+              case g:
+                h = (b - r) / d + 2;
+                break;
+              case b:
+                h = (r - g) / d + 4;
+                break;
+            }
+
+            h /= 6;
+          }
+
+          return [
+            Math.round(h * 360 * 100) / 100,
+            Math.round(s * 100 * 100) / 100,
+            Math.round(l * 100 * 100) / 100
+          ];
+        };
+
+        const getRandomInt = (min, max) => {
+          return Math.random() * (max - min) + min;
+        };
+
+        const setStyle = () => {
+          const r = parseInt(document.querySelector('#R').value, 10);
+          const g = parseInt(document.querySelector('#G').value, 10);
+          const b = parseInt(document.querySelector('#B').value, 10);
+
+          const bgColor = toRgb(r, g, b);
+          const hexColor = toHex(r, g, b);
+          const textColor = chooseTextColor(r, g, b);
+
+          const f = document.querySelector('#Field');
+          f.style.backgroundColor = bgColor;
+          f.style.color = textColor;
+
+          const rf = document.querySelector('#RgbField');
+          rf.style.backgroundColor = bgColor;
+          rf.style.color = textColor;
+          rf.value = bgColor;
+
+          const hf = document.querySelector('#HexField');
+          hf.style.backgroundColor = bgColor;
+          hf.style.color = textColor;
+          hf.value = hexColor;
+
+          const hsl = toHsl(r, g, b);
+          console.log(hsl);
+          const bgHsl = `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)`;
+          const fontHsl = `hsl(${hsl[0]}, ${hsl[1]}%, ${
+            hsl[2] > 50 ? hsl[2] - 40 : hsl[2] + 40
+          }%)`;
+          const hslField = document.querySelector('#HslField');
+          hslField.style.backgroundColor = bgHsl;
+          hslField.style.color = fontHsl;
+          hslField.value = bgHsl;
+        };
+
+        const setRandom = () => {
+          document.querySelector('#R').value = getRandomInt(0, 255);
+          document.querySelector('#G').value = getRandomInt(0, 255);
+          document.querySelector('#B').value = getRandomInt(0, 255);
+
+          const event = new Event('input');
+          document.querySelector('#R').dispatchEvent(event);
+          document.querySelector('#G').dispatchEvent(event);
+          document.querySelector('#B').dispatchEvent(event);
+        };
+
+        const main = (() => {
+          setStyle();
+
+          document.querySelector('#R').addEventListener('input', setStyle);
+          document.querySelector('#G').addEventListener('input', setStyle);
+          document.querySelector('#B').addEventListener('input', setStyle);
+
+          document
+            .querySelector('#RandomBtn')
+            .addEventListener('click', setRandom);
+        })();
+      })();
+    </script>
+  </body>
+</html>
