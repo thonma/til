@@ -1,33 +1,32 @@
 (function () {
   'use strict';
 
-  const getRandom1Digit = () => {
-    return Math.floor(Math.random() * 10);
-  };
+  const getRandom1DigitNum = () => Math.floor(Math.random() * 10);
 
-  const dararara = (elem, toNum, { dararaCount = 20, delay = 50 } = {}) => {
-    const chars = [...toNum.toString()];
-    const len = chars.length;
+  const dararara = (elem, toNum) => {
+    let dararaCount = 50;
+    const chars = [...(toNum + '')];
 
     const dararaInterval = setInterval(() => {
-      const randomNum = chars
-        .map(c => (c === '.' ? c : getRandom1Digit()))
-        .join('');
+      const randomNum = chars.map(c => isNaN(c) ? c : getRandom1DigitNum()).join('');
       elem.textContent = randomNum;
 
       dararaCount--;
-      if (dararaCount < 0) {
+      if (dararaCount === 0) {
         clearInterval(dararaInterval);
-        elem.textContent = toNum;
+
+        elem.textContent = '';
+        const dararaFinInterval = setInterval(() => {
+          elem.textContent = chars.pop() + elem.textContent;
+          if (chars.length === 0) {
+            clearInterval(dararaFinInterval);
+          }
+        }, 300);
       }
-    }, delay);
+    }, 50);
   };
 
-  window.addEventListener('load', () => {
-    dararara(document.querySelector('#Target1'), 100);
-    dararara(document.querySelector('#Target2'), 200);
-    dararara(document.querySelector('#Target3'), 1000);
-    dararara(document.querySelector('#Target4'), 2000);
-    dararara(document.querySelector('#Target5'), 123.456);
-  });
+  // Usage
+  dararara(document.querySelector('#Target1'), 123456789);
+  dararara(document.querySelector('#Target2'), '123,456.789');
 })();
