@@ -1,0 +1,81 @@
+<script>
+  (() => {
+    'use strict';
+
+    const flat = (arr, result = []) => {
+      if (Array.isArray(arr) === false) return result;
+      for (const ai of arr) {
+        if (Array.isArray(ai)) flat(ai, result);
+        else result.push(ai);
+      }
+      return result;
+    };
+
+    console.log(flat([1, 2, 3, 4]));
+    console.log('\n\n');
+
+    console.log(flat(
+      [
+        [1, 2],
+        [3, 4]
+      ]
+    ));
+    console.log('\n\n');
+
+    console.log(flat(
+      [
+        [
+          [1, 2],
+          [3, 4]
+        ],
+        [
+          [5, 6],
+          [7, 8]
+        ]
+      ]
+    ));
+    console.log('\n\n');
+
+    console.log(flat([1, [2, [3, [4]]]]));
+    console.log('\n\n');
+
+    console.log(flat(['a', 'b', 'c', 'd']));
+    console.log('\n\n');
+
+    console.log(flat([true, false, true, false]));
+    console.log('\n\n');
+
+    console.log(flat([{ one: 1 }, { two: 2 }, { three: 3 }, { four: 4 }]));
+    console.log('\n\n');
+
+    console.log(flat([
+      function () { return 1; },
+      function () { return 2; },
+      function () { return 3; },
+      function () { return 4; }
+    ]));
+    console.log('\n\n');
+
+    console.log(flat([null, null, null, null]));
+    console.log('\n\n');
+
+    console.log(flat([undefined, undefined, undefined, undefined]));
+    console.log('\n\n');
+
+    console.log(flat([NaN, NaN, NaN, NaN]));
+    console.log('\n\n');
+
+    console.log(flat(null));
+    console.log('\n\n');
+
+    console.log(flat(undefined));
+    console.log('\n\n');
+
+    console.log(flat(new Array(0)));
+    console.log('\n\n');
+
+    console.log(flat(new Array(3)));
+    console.log('\n\n');
+
+  })();
+</script>
