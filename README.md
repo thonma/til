@@ -5,9 +5,8 @@
 - [LEARNING](#learning)
   - [TODO](#todo)
     - [React](#react)
-    - [Svelte and SPA](#svelte-and-spa)
-    - [PWA](#pwa)
-    - [Nuxt.js](#nuxtjs)
+    - [Next.js](#nuxtjs)
+    - [TypeScript](#typescript)
   - [DOING](#doing)
   - [DONE](#done)
 
@@ -15,8 +14,7 @@
 
 ## TODO
 ### React
-### Svelte and SPA
-### PWA
-### Nuxt.js
+### Next.js
+### TypeScript
 ## DOING
 ## DONE
